@@ -1,0 +1,48 @@
+﻿using Microsoft.Xna.Framework.Input.Touch;
+
+namespace Robber2D
+{
+    internal class Controller
+    {
+        public bool Up, Down, Left, Right, Space, D;
+
+        public void Update()
+        {
+
+            TouchCollection touchCollection = TouchPanel.GetState();
+
+            if (touchCollection.Count > 0)
+            {
+                Up = false;
+                Down = false;
+                Left = false;
+                Right = false;
+                D = false;
+                Space = false;
+
+                foreach (TouchLocation touch in touchCollection)
+                {
+
+                    if (touch.State == TouchLocationState.Moved )
+                    {
+                        if (touch.Position.X < 400)
+                        {
+                            Left = true;
+                        }
+
+                        if (touch.Position.X >= 400 && touch.Position.X < 700)
+                        {
+                            Right = true;
+                        }
+
+
+                        if (touch.Position.X > 900)
+                        {
+                            Space = true;
+                        }
+                    }
+                }   
+            }
+        }
+    }
+}
