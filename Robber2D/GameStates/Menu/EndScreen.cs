@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Android.OS;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Robber2D;
@@ -11,11 +12,11 @@ namespace Robber2D
     {
 
         SpriteFont buttonFont;
-        Button newGameButton, closeGameButton;
-        Texture2D buttonBorder, GameOverImage;
+        Texture2D GameOverImage;
         private int leftMarginGameOver;
         string EndScore;
-        public List<Button> AllButtons;
+        private const string startMessage = "PRESS ANYWHERE TO RESTART THE GAME";
+        bool canRestart;
 
         public EndScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Game1 game) : base(contentManager, graphicsDevice, game)
         {
@@ -28,42 +29,21 @@ namespace Robber2D
         }
         public override void LoadContent()
         {
+            buttonFont = contentManager.Load<SpriteFont>("DefaultTextFont");
+            GameOverImage = contentManager.Load<Texture2D>("GameOver");
 
             GetScore();
 
             // Game Over Image
-            GameOverImage = contentManager.Load<Texture2D>("GameOver");
             leftMarginGameOver = (Game1.ScreenWidth - GameOverImage.Width) / 2;
-
-            // Buttons
-            AllButtons = new List<Button>();
-            buttonBorder = contentManager.Load<Texture2D>("ButtonBorder");
-            buttonFont = contentManager.Load<SpriteFont>("DefaultTextFont");
-
-            int leftMarginButton = (Game1.ScreenWidth - buttonBorder.Width) / 2; // Center buttons on the screen
-
-            newGameButton = new Button(buttonBorder, buttonFont)
-            {
-                Text = "NEW GAME",
-                Position = new Vector2(leftMarginButton, 650)
-
-            };
-
-            closeGameButton = new Button(buttonBorder, buttonFont)
-            {
-                Text = "CLOSE GAME",
-                Position = new Vector2(leftMarginButton, 750)
-
-            };
-
-            AllButtons.Add(closeGameButton);
-            AllButtons.Add(newGameButton);
-
-            closeGameButton.Click += CloseGame;
-            newGameButton.Click += StartNewGame;
-
             GameSounds.PlayGameOverSound();
 
+            canRestart = false;
+
+            new Handler().PostDelayed(delegate
+            {
+                canRestart = true;
+            }, 2500);
         }
 
         private void GetScore()
@@ -80,9 +60,9 @@ namespace Robber2D
 
         public override void Update(GameTime gameTime)
         {
-            foreach (Button button in AllButtons)
+            if (Controller.isPressed() && canRestart)
             {
-                button.Update(gameTime);
+                StartNewGame();
             }
         }
 
@@ -98,6 +78,13 @@ namespace Robber2D
             spriteBatch.DrawString(buttonFont, EndScore, new Vector2(x, y), Color.Red);
         }
 
+        private void DrawTextMessage(SpriteBatch spriteBatch)
+        {
+            var x = ((Game1.ScreenWidth / 2)) - (buttonFont.MeasureString(startMessage).X / 2) ;
+            var y = ((Game1.ScreenHeight / 2)) - (buttonFont.MeasureString(startMessage).Y / 2) + 200;
+            spriteBatch.DrawString(buttonFont, startMessage, new Vector2(x, y), Color.White);
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             graphicsDevice.Clear(Color.Black);
@@ -105,23 +92,14 @@ namespace Robber2D
             spriteBatch.Begin();
 
             DrawGameOverText(spriteBatch);
-
-            foreach (Button button in AllButtons)
-            {
-                button.Draw(spriteBatch);
-            }
-
             DrawScore(spriteBatch);
+            DrawTextMessage(spriteBatch);
 
             spriteBatch.End();
         }
 
-        private void CloseGame(object sender, EventArgs e)
-        {
-            game.Exit();
-        }
 
-        private void StartNewGame(object sender, EventArgs e)
+        private void StartNewGame()
         {
             GameStateManager.Instance.SetCurrentState(new InGame(contentManager, graphicsDevice, game));
         }
