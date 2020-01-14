@@ -1,10 +1,20 @@
-﻿using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Robber2D
 {
     internal class Controller
     {
         public bool Up, Down, Left, Right, Space, D;
+
+        static public bool isPressed()
+        {
+            TouchCollection touchCollection = TouchPanel.GetState();
+            if (touchCollection.Count > 0)
+            {
+                return true;
+            }
+            return false;
+        }
 
         public void Update()
         {

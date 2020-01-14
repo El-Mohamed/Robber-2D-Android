@@ -38,7 +38,7 @@ namespace Robber2D
             // Buttons
             AllButtons = new List<Button>();
             buttonBorder = contentManager.Load<Texture2D>("ButtonBorder");
-            buttonFont = contentManager.Load<SpriteFont>("ButtonFont");
+            buttonFont = contentManager.Load<SpriteFont>("DefaultTextFont");
 
             int leftMarginButton = (Game1.ScreenWidth - buttonBorder.Width) / 2; // Center buttons on the screen
 

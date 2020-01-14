@@ -11,12 +11,10 @@ namespace Robber2D
     {
         #region Fields
 
-        public List<Button> AllButtons;
-        private Texture2D buttonBorder;
-        private SpriteFont buttonFont;
-        private Button startButton, settingsButton, exitButton;
         private Texture2D logo;
-        private int leftMarginLogo;
+        private int leftMarginLogo, topMarginLogo, leftMarginText, topMarginText;
+        private SpriteFont spriteFont;
+        private const string startMessage = "PRESS ANYWHERE TO START THE GAME";
 
         #endregion
         public StartScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Game1 game) : base(contentManager, graphicsDevice, game)
@@ -31,45 +29,16 @@ namespace Robber2D
 
         public override void LoadContent()
         {
-            AllButtons = new List<Button>();
-
-            buttonBorder = contentManager.Load<Texture2D>("ButtonBorder");
-            buttonFont = contentManager.Load<SpriteFont>("ButtonFont");
             logo = contentManager.Load<Texture2D>("Logo");
+            leftMarginLogo = ((Game1.ScreenWidth - logo.Width) / 2);
+            topMarginLogo = ((Game1.ScreenHeight - logo.Height) / 2) - 100;
+            spriteFont = contentManager.Load<SpriteFont>("DefaultTextFont");
+            leftMarginText = (Game1.ScreenWidth - (int)spriteFont.MeasureString(startMessage).X) / 2;
+            topMarginText = ((Game1.ScreenHeight - (int)spriteFont.MeasureString(startMessage).Y) / 2) + 300;
 
-            int leftMarginButton = (Game1.ScreenWidth - buttonBorder.Width) / 2; // Center buttons on the screen
-            leftMarginLogo = (Game1.ScreenWidth - logo.Width) / 2;
-
-            startButton = new Button(buttonBorder, buttonFont)
-            {
-                Text = "START GAME",
-                Position = new Vector2(leftMarginButton, 400)
-            };
-            settingsButton = new Button(buttonBorder, buttonFont)
-            {
-                Text = "SETTINGS",
-                Position = new Vector2(leftMarginButton, 500)
-            };
-            exitButton = new Button(buttonBorder, buttonFont)
-            {
-                Text = "EXIT",
-                Position = new Vector2(leftMarginButton, 600)
-            };
-
-            AllButtons.Add(startButton);
-            AllButtons.Add(settingsButton);
-            AllButtons.Add(exitButton);
-
-            exitButton.Click += CloseGame;
-            startButton.Click += StartGame;
         }
 
-        private void CloseGame(object sender, EventArgs e)
-        {
-            game.Exit();
-        }
-
-        private void StartGame(object sender, EventArgs e)
+        private void StartGame()
         {
             GameStateManager.Instance.SetCurrentState(new InGame(contentManager, graphicsDevice, game));
         }
@@ -81,15 +50,19 @@ namespace Robber2D
 
         public override void Update(GameTime gameTime)
         {
-            foreach (Button button in AllButtons)
+            if (Controller.isPressed())
             {
-                button.Update(gameTime);
+                StartGame();
             }
         }
 
         private void DrawLogo(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(logo, new Vector2(leftMarginLogo, 100), null, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(logo, new Vector2(leftMarginLogo, topMarginLogo), null, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+        }
+        private void DrawTextMessage(SpriteBatch spriteBatch)
+        {
+            spriteBatch.DrawString(spriteFont, startMessage, new Vector2(leftMarginText, topMarginText), Color.White);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -98,12 +71,7 @@ namespace Robber2D
             spriteBatch.Begin();
 
             DrawLogo(spriteBatch);
-
-            foreach (Button b in AllButtons)
-            {
-
-                b.Draw(spriteBatch);
-            }
+            DrawTextMessage(spriteBatch);
 
             spriteBatch.End();
         }

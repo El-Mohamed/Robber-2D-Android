@@ -35,7 +35,7 @@ namespace Robber2D
         {   
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            GameStateManager.Instance.SetCurrentState(new InGame(Content, GraphicsDevice, this));
+            GameStateManager.Instance.SetCurrentState(new StartScreen(Content, GraphicsDevice, this));
         }
 
         protected override void UnloadContent()

@@ -61,19 +61,26 @@
 /processorParam:TextureFormat=Color
 /build:ButtonBorder.jpg
 
-#begin ButtonFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:ButtonFont.spritefont
-
 #begin ClockFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:ClockFont.spritefont
+
+#begin DefaultTextFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:DefaultTextFont.spritefont
+
+#begin DefaultTextFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:DefaultTextFont.spritefont
 
 #begin Diamond.png
 /importer:TextureImporter
