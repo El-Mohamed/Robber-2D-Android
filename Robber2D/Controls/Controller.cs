@@ -35,12 +35,12 @@ namespace Robber2D
 
                     if (touch.State == TouchLocationState.Moved )
                     {
-                        if (touch.Position.X < 400)
+                        if (touch.Position.X < 250)
                         {
                             Left = true;
                         }
 
-                        if (touch.Position.X >= 400 && touch.Position.X < 700)
+                        if (touch.Position.X >= 250 && touch.Position.X < 500)
                         {
                             Right = true;
                         }
