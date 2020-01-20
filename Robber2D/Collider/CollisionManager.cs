@@ -44,6 +44,7 @@ namespace Robber2D
                             player.Inventory.AddItem(currentLevel.AllPickables[i]);
                             currentLevel.AllPickables.RemoveAt(i);
                             player.Inventory.MyKey = null;
+                            currentLevel.totalMoneySafes--;
                         }
                     }
                     else
@@ -59,13 +60,20 @@ namespace Robber2D
         {
             foreach (Block obstacle in currentLevel.AllObstacles)
             {
-                if (obstacle is Door)
+                if (obstacle is Door && currentLevel.IsCompleted)
                 {
                     Door door = obstacle as Door;
                     if (player.CollisionRectangle.Intersects(door.CollisionRectangle))
-                    {
-                        InGame.CurrentLevel = currentLevel.NextLevel;
-                        player.Respawn();
+                    {                       
+                        if(currentLevel.NextLevel == InGame.GAMEISDONECODE)
+                        {
+                            InGame.PlayerWon = true;                        
+                        }   
+                        else
+                        {
+                            InGame.CurrentLevel = currentLevel.NextLevel;
+                            player.Respawn();
+                        }
                     }
                 }
             }

@@ -16,6 +16,24 @@ namespace Robber2D
         public List<int> MoneySafeIndentifiers;
         protected byte[,] ObstaclesArray, PickablesArray;
         protected long LevelHeight, MapWidth;
+        int totalKeys;
+        public int totalMoneySafes;
+
+        public bool IsCompleted
+        {
+            get
+            {
+                if (totalMoneySafes == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
 
         public Level(byte[,] obstaclesArray, byte[,] pickablesArray, List<int> moneySafeIdentiefiers, List<Block> allObstacles, List<Block> allPickables)
         {
@@ -48,8 +66,7 @@ namespace Robber2D
 
         private void CreatePickables(ContentManager contentManager)
         {
-            int totalKeys = 0;
-            int totalMoneySafes = 0;
+
             Texture2D tempTexture = contentManager.Load<Texture2D>("Pickable1");
             Vector2 tempVector = new Vector2();
             Rectangle tempCollisonRectangle = new Rectangle();
@@ -92,7 +109,7 @@ namespace Robber2D
                         case 3:
                             Potion tempPotion = new Potion(tempSprite, tempCollisonRectangle)
                             {
-                                SpeedAcceleration = 2 // TODO CREATE RANDOM
+                                SpeedAcceleration = 1 // TODO CREATE RANDOM
                             };
                             AllPickables.Add(tempPotion);
                             break;

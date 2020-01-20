@@ -88,7 +88,7 @@ namespace Robber2D
 
         public void CreateBullets(ContentManager contentManager)
         {
-            if (LastTimeShooted >= 100)
+            if (LastTimeShooted >= 300)
             {
                 foreach (Tank tank in AllTanks)
                 {

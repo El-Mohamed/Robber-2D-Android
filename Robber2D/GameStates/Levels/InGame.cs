@@ -20,9 +20,12 @@ namespace Robber2D
         HealthBar healtbar;
 
         GameSounds gameSounds;
-        SpriteFont clockFont;
+        SpriteFont defaultFont;
         SoundEffect pickSound, hitSound, drinkSound, jumpSound, gameOverSound;
         Texture2D potionTexture, coinTexture, keyTexture, diamondTexture, healtTexture;
+        List<Texture2D> allTextures;
+        static public bool PlayerWon;
+        static public int GAMEISDONECODE = 999;
 
         #endregion
 
@@ -68,7 +71,7 @@ namespace Robber2D
             Texture2D playerTexture = contentManager.Load<Texture2D>("PlayerSpriteSheet");
             Controller playerController = new Controller();
             Vector2 playerPosition = new Vector2();
-            Vector2 playerSpeed = new Vector2(5, 4);
+            Vector2 playerSpeed = new Vector2(7, 0);
             Animation playerAnimation = new Animation();
             Sprite playerSprite = new Sprite(playerTexture, 6, playerPosition);
             Rectangle playerCollisonRectangle = new Rectangle((int)playerPosition.X, (int)playerPosition.Y, playerTexture.Width / spriteSheetLength, playerTexture.Height);
@@ -81,6 +84,7 @@ namespace Robber2D
             AllLevels = new List<Level>();
             CurrentLevel = 0;
             collisionManager = new CollisionManager();
+            PlayerWon = false;
 
             // SoundEffects
             pickSound = contentManager.Load<SoundEffect>("PickSound");
@@ -93,8 +97,8 @@ namespace Robber2D
 
             // Clock
 
-            clockFont = contentManager.Load<SpriteFont>("ClockFont");
-            Clock.SpriteFont = clockFont;
+            defaultFont = contentManager.Load<SpriteFont>("DefaultFont");
+            Clock.SpriteFont = defaultFont;
 
             // Inventory Helper 
 
@@ -102,80 +106,98 @@ namespace Robber2D
             coinTexture = contentManager.Load<Texture2D>("Pickable2");
             potionTexture = contentManager.Load<Texture2D>("Pickable3");
             diamondTexture = contentManager.Load<Texture2D>("Diamond");
-            inventroyHelper = new InventoryBar(player.Inventory, keyTexture, coinTexture, potionTexture, diamondTexture);
+            allTextures = new List<Texture2D>() { keyTexture, coinTexture, potionTexture, diamondTexture };
+            inventroyHelper = new InventoryBar(player.Inventory, allTextures, defaultFont);
 
             // Healthbar
 
             healtTexture = contentManager.Load<Texture2D>("Health");
             healtbar = new HealthBar(healtTexture);
 
-            // Level 1&2 MoneySafe and Keys ID's
+            #region Level0
 
-            List<int> MoneySafeIndetifiers = new List<int>() { 1000, 1001, 1002, 1003 };
+            byte[,] ObstaclesLevel0 = new byte[,]
+            {
+                 {1,1,0,0,0,0,1,1 },
+                 {1,1,1,1,0,1,0,0 },
+                 {2,1,1,1,1,1,0,0 }
+            };
 
-            // Level 1
+            byte[,] PickablesLevel0 = new byte[,]
+            {
+                 {0,0,0,0,0,0,0,4 },
+                 {0,0,0,1,0,0,0,0 },
+                 {0,0,2,0,0,0,0,0 }
+            };
+
+            List<int> MoneySafeIndetifiers0 = new List<int>() { 10006, };
+
+            Level level0 = new Level(ObstaclesLevel0, PickablesLevel0, MoneySafeIndetifiers0, new List<Block>(), new List<Block>());
+            level0.Create(contentManager);
+            level0.NextLevel = AllLevels.Count + 1;
+            AllLevels.Add(level0);
+
+            #endregion
+
+            #region Level1
 
             byte[,] ObstaclesLevel1 = new byte[,]
             {
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,0,0,1,1,1,0,1},
-                 {1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,0},
-                 {1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,0,0,1,1,1,0,1},
-                 {1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,0},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1},
+                 {1,0,0,0,1,0,0,1,0,0 },
+                 {1,0,0,0,1,1,1,1,0,1},
+                 {1,1,2,1,1,1,1,0,1,1},
+                 {1,1,0,1,0,1,1,1,0,1}
             };
 
             byte[,] PickablesLevel1 = new byte[,]
             {
-                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                 {0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
-                 {0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
-                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                 {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                 {0,0,0,0,2,0,0,4,0,0 },
+                 {2,0,0,0,0,1,0,0,0,0 },
+                 {0,0,0,0,0,3,0,0,0,4 },
+                 {0,1,0,0,0,0,0,0,0,2 }
             };
 
-            Level level1 = new Level(ObstaclesLevel1, PickablesLevel1, MoneySafeIndetifiers, new List<Block>(), new List<Block>());
+            List<int> MoneySafeIndetifiers1 = new List<int>() { 10006, 10007 };
+
+            Level level1 = new Level(ObstaclesLevel1, PickablesLevel1, MoneySafeIndetifiers1, new List<Block>(), new List<Block>());
             level1.Create(contentManager);
-            level1.NextLevel = 1; // Go to second level
+            level1.NextLevel = AllLevels.Count + 1;
             AllLevels.Add(level1);
 
-            // Level 2
+            #endregion
+
+            #region Level2
 
             byte[,] ObstaclesLevel2 = new byte[,]
             {
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,0,0,1,0,0,1,1,0,0,1,1,0,0,0,1,0,1,1,0,1,0,1},
-                 {0,1,1,1,0,0,1,1,0,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1},
-                 {1,1,0,0,1,0,0,1,1,0,0,1,1,0,0,0,1,0,1,1,0,1,0,1},
-                 {0,1,1,1,0,0,1,1,0,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1},
+                 {1,0,0,1,0,0,1,0,1,0 },
+                 {1,1,1,1,1,1,0,1,1,1 },
+                 {0,1,2,1,0,1,1,1,1,1 },
             };
 
             byte[,] PickablesLevel2 = new byte[,]
             {
-                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                 {0,2,0,0,3,0,0,2,0,0,0,0,2,0,0,0,3,0,0,0,0,0,0,0},
-                 {0,0,0,0,0,4,0,0,0,2,0,0,0,0,0,4,0,2,0,0,0,0,0,0},
-                 {0,3,2,0,0,0,3,0,4,0,0,0,0,0,2,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,4,0,0,0},
-                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                 {0,0,0,0,0,0,2,0,4,0 },
+                 {2,0,0,0,0,0,0,0,0,0 },
+                 {0,0,0,0,0,1,0,0,0,2 },
             };
 
-            byte[,] EnemiesLevel2 = new byte[,]
-             {
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
-                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+
+            byte[,] EnemiesArray2 = new byte[,]
+            {
+                 {0,0,0,0,0,0,0,0,0,0 },
+                 {0,0,0,1,0,0,0,0,0,0 },
+                 {0,0,0,0,0,0,0,0,1,0 },
             };
 
-            HardLevel level2 = new HardLevel(ObstaclesLevel2, PickablesLevel2, MoneySafeIndetifiers, EnemiesLevel2, new List<Block>(), new List<Block>(), new List<Tank>());
+            List<int> MoneySafeIndetifiers2 = new List<int>() { 10009 };
+
+            Level level2 = new HardLevel(ObstaclesLevel2, PickablesLevel2, MoneySafeIndetifiers2, EnemiesArray2, new List<Block>(), new List<Block>(), new List<Tank>());
             level2.Create(contentManager);
-            level2.NextLevel = 0; // Go back to first level
+            level2.NextLevel = GAMEISDONECODE;
             AllLevels.Add(level2);
+
+            #endregion
 
         }
 
@@ -187,6 +209,11 @@ namespace Robber2D
         public override void Update(GameTime gameTime)
         {
             // Player
+
+            if (PlayerWon)
+            {
+                GameStateManager.Instance.SetCurrentState(new WinScreen(contentManager, graphicsDevice, game));
+            }
 
             if (player.IsDead)
             {

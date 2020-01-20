@@ -9,7 +9,7 @@ namespace Robber2D
 
         public Bullet(Sprite sprite, Rectangle collisionRectangle) : base(sprite, collisionRectangle)
         {
-            Speed = new Vector2(10, 0);
+            Speed = new Vector2(15, 0);
             Damage = 10;
         }
 

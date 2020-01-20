@@ -73,6 +73,7 @@
     <Compile Include="GameStates\Levels\InGame.cs" />
     <Compile Include="GameStates\Menu\EndScreen.cs" />
     <Compile Include="GameStates\Menu\StartScreen.cs" />
+    <Compile Include="GameStates\Menu\WinScreen.cs" />
     <Compile Include="Interface\Button.cs" />
     <Compile Include="Level\HardLevel.cs" />
     <Compile Include="Level\Level.cs" />
