@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Robber2D
+namespace Robber_2D
 {
     /// <summary>
     /// This is the main type for your game.

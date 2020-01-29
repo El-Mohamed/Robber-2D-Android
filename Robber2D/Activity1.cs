@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Views;
 
-namespace Robber2D
+namespace Robber_2D
 {
     [Activity(Label = "Robber2D"
         , MainLauncher = true

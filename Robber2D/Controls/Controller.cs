@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Input.Touch;
 
-namespace Robber2D
+namespace Robber_2D
 {
     internal class Controller
     {

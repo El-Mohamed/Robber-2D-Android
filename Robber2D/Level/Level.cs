@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace Robber2D
+namespace Robber_2D
 {
     class Level
     {

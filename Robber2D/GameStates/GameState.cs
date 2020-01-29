@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Robber2D;
+using Robber_2D;
 
-namespace Robber2D
+namespace Robber_2D
 {
     public abstract class GameState : IGameState
     {

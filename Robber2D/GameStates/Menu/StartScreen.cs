@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Robber2D;
+using Robber_2D;
 using System;
 using System.Collections.Generic;
 
-namespace Robber2D
+namespace Robber_2D
 {
     class StartScreen : GameState
     {

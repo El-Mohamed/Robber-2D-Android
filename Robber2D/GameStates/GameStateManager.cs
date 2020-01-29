@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Robber2D
+namespace Robber_2D
 {
     class GameStateManager
     {

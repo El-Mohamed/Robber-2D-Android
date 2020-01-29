@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Robber2D
+namespace Robber_2D
 {
     abstract class Block : ICollider
     {

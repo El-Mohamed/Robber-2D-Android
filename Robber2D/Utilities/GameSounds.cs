@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 
-namespace Robber2D
+namespace Robber_2D
 {
     class GameSounds
     {
