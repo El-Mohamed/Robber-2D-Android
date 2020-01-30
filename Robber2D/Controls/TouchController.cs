@@ -34,24 +34,34 @@ namespace Robber_2D
                 Output.Right = false;
                 Output.Drink = false;
                 Output.Jump = false;
+                Output.Shoot = false;
 
                 foreach (TouchLocation touch in touchCollection)
                 {
 
                     if (touch.State == TouchLocationState.Moved)
                     {
-                        if (touch.Position.X < 250)
+                        if (touch.Position.X < 300)
                         {
                             Output.Left = true;
                         }
 
-                        if (touch.Position.X >= 250 && touch.Position.X < 500)
+                        if (touch.Position.X >= 300 && touch.Position.X < 600)
                         {
                             Output.Right = true;
                         }
 
+                        if (touch.Position.X > 900 && touch.Position.X < 1100)
+                        {
+                            Output.Drink = true;
+                        }
 
-                        if (touch.Position.X > 900)
+                        if (touch.Position.X > 1300 && touch.Position.X < 1650)
+                        {
+                            Output.Shoot = true;
+                        }
+
+                        if (touch.Position.X >= 1650)
                         {
                             Output.Jump = true;
                         }
