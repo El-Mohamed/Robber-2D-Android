@@ -4,16 +4,17 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Robber_2D
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
-    public class Game1 : Game
+    enum Direction { ToLeft, ToRight }
+    enum GameMode { Hero, Tank }
+    enum GameResult { Won, Lost }
+
+    public class Robber2D : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         public static int ScreenHeight, ScreenWidth;
 
-        public Game1()
+        public Robber2D()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";

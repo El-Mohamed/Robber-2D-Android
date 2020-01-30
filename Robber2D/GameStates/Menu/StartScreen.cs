@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Robber_2D;
@@ -9,15 +10,13 @@ namespace Robber_2D
 {
     class StartScreen : GameState
     {
-        #region Fields
 
         private Texture2D logo;
         private int leftMarginLogo, topMarginLogo, leftMarginText, topMarginText;
         private SpriteFont spriteFont;
         private const string startMessage = "PRESS ANYWHERE TO START THE GAME";
 
-        #endregion
-        public StartScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Game1 game) : base(contentManager, graphicsDevice, game)
+        public StartScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Robber2D game) : base(contentManager, graphicsDevice, game)
         {
 
         }
@@ -29,18 +28,26 @@ namespace Robber_2D
 
         public override void LoadContent()
         {
-            logo = contentManager.Load<Texture2D>("Logo");
-            leftMarginLogo = ((Game1.ScreenWidth - logo.Width) / 2);
-            topMarginLogo = ((Game1.ScreenHeight - logo.Height) / 2) - 100;
-            spriteFont = contentManager.Load<SpriteFont>("DefaultTextFont");
-            leftMarginText = (Game1.ScreenWidth - (int)spriteFont.MeasureString(startMessage).X) / 2;
-            topMarginText = ((Game1.ScreenHeight - (int)spriteFont.MeasureString(startMessage).Y) / 2) + 300;
+            // Logo
 
+            logo = ContentManager.Load<Texture2D>("Logo");
+            leftMarginLogo = ((Robber2D.ScreenWidth - logo.Width) / 2);
+            topMarginLogo = ((Robber2D.ScreenHeight - logo.Height) / 2) - 100;
+
+            // Text
+
+            spriteFont = ContentManager.Load<SpriteFont>("DefaultTextFont");
+            leftMarginText = (Robber2D.ScreenWidth - (int)spriteFont.MeasureString(startMessage).X) / 2;
+            topMarginText = ((Robber2D.ScreenHeight - (int)spriteFont.MeasureString(startMessage).Y) / 2) + 300;
+
+            // SoundEffect
+
+            MenuSounds.SelectSound = ContentManager.Load<SoundEffect>("SelectSound");
         }
 
         private void StartGame()
         {
-            GameStateManager.Instance.SetCurrentState(new InGame(contentManager, graphicsDevice, game));
+            GameStateManager.Instance.SetCurrentState(new InGame(ContentManager, GraphicsDevice, Game));
         }
 
         public override void UnloadContent()
@@ -50,9 +57,10 @@ namespace Robber_2D
 
         public override void Update(GameTime gameTime)
         {
-            if (Controller.isPressed())
+            if (TouchController.isPressed())
             {
-                StartGame();
+                MenuSounds.PlaySelectSound();
+                StartGame();                
             }
         }
 
@@ -67,7 +75,7 @@ namespace Robber_2D
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            graphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin();
 
             DrawLogo(spriteBatch);

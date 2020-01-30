@@ -11,16 +11,17 @@ namespace Robber_2D
     class EndScreen : GameState
     {
 
-        SpriteFont buttonFont;
-        Texture2D GameOverImage;
+        SpriteFont textFont, scoreFont;
+        Texture2D resultImage;
         private int leftMarginGameOver;
         string EndScore;
         private const string startMessage = "PRESS ANYWHERE TO RESTART THE GAME";
         bool canRestart;
+        GameResult gameResult;
 
-        public EndScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Game1 game) : base(contentManager, graphicsDevice, game)
+        public EndScreen(ContentManager contentManager, GraphicsDevice graphicsDevice, Robber2D game, GameResult gameResult) : base(contentManager, graphicsDevice, game)
         {
-
+            this.gameResult = gameResult;
         }
 
         public override void Initialize()
@@ -29,14 +30,34 @@ namespace Robber_2D
         }
         public override void LoadContent()
         {
-            buttonFont = contentManager.Load<SpriteFont>("DefaultTextFont");
-            GameOverImage = contentManager.Load<Texture2D>("GameOver");
+            // Sound Effect
 
-            GetScore();
+            if (gameResult == GameResult.Lost)
+            {
+                GameSounds.PlayGameOverSound();
+            }
 
-            // Game Over Image
-            leftMarginGameOver = (Game1.ScreenWidth - GameOverImage.Width) / 2;
-            GameSounds.PlayGameOverSound();
+            // Result Image
+
+            if (gameResult == GameResult.Won)
+            {
+                resultImage = ContentManager.Load<Texture2D>("YouWin");
+            }
+            else
+            {
+                resultImage = ContentManager.Load<Texture2D>("GameOver");
+            }
+
+            textFont = ContentManager.Load<SpriteFont>("DefaultTextFont");
+
+            leftMarginGameOver = (Robber2D.ScreenWidth - resultImage.Width) / 2;
+
+            // Text
+
+            scoreFont = ContentManager.Load<SpriteFont>("DefaultFont");
+            CalculateScore();
+
+            // Restart
 
             canRestart = false;
 
@@ -46,10 +67,10 @@ namespace Robber_2D
             }, 2500);
         }
 
-        private void GetScore()
+        private void CalculateScore()
         {
             int DiamondsScore = InGame.player.Inventory.MyDiamonds * 200;
-            int CoinsScore = InGame.player.Inventory.MyCoins.Count * 100;
+            int CoinsScore = InGame.player.Inventory.AllCoins.Count * 100;
             EndScore = "TOTAL SCORE: " + Convert.ToString(DiamondsScore + CoinsScore);
         }
 
@@ -60,38 +81,39 @@ namespace Robber_2D
 
         public override void Update(GameTime gameTime)
         {
-            if (Controller.isPressed() && canRestart)
+            if (TouchController.isPressed() && canRestart)
             {
+                MenuSounds.PlaySelectSound();
                 StartNewGame();
             }
         }
 
-        private void DrawGameOverText(SpriteBatch spriteBatch)
+        private void DrawResultImage(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(GameOverImage, new Vector2(leftMarginGameOver, 200), null, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(resultImage, new Vector2(leftMarginGameOver, 200), null, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
         }
 
         private void DrawScore(SpriteBatch spriteBatch)
         {
-            var x = ((Game1.ScreenWidth / 2)) - (buttonFont.MeasureString(EndScore).X / 2);
-            var y = ((Game1.ScreenHeight / 2)) - (buttonFont.MeasureString(EndScore).Y / 2);
-            spriteBatch.DrawString(buttonFont, EndScore, new Vector2(x, y), Color.Red);
+            var x = ((Robber2D.ScreenWidth / 2)) - (textFont.MeasureString(EndScore).X / 2);
+            var y = ((Robber2D.ScreenHeight / 2)) - (textFont.MeasureString(EndScore).Y / 2);
+            spriteBatch.DrawString(textFont, EndScore, new Vector2(x, y), Color.Red);
         }
 
         private void DrawTextMessage(SpriteBatch spriteBatch)
         {
-            var x = ((Game1.ScreenWidth / 2)) - (buttonFont.MeasureString(startMessage).X / 2) ;
-            var y = ((Game1.ScreenHeight / 2)) - (buttonFont.MeasureString(startMessage).Y / 2) + 200;
-            spriteBatch.DrawString(buttonFont, startMessage, new Vector2(x, y), Color.White);
+            var x = ((Robber2D.ScreenWidth / 2)) - (textFont.MeasureString(startMessage).X / 2) ;
+            var y = ((Robber2D.ScreenHeight / 2)) - (textFont.MeasureString(startMessage).Y / 2) + 200;
+            spriteBatch.DrawString(textFont, startMessage, new Vector2(x, y), Color.White);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            graphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
 
-            DrawGameOverText(spriteBatch);
+            DrawResultImage(spriteBatch);
             DrawScore(spriteBatch);
             DrawTextMessage(spriteBatch);
 
@@ -101,7 +123,7 @@ namespace Robber_2D
 
         private void StartNewGame()
         {
-            GameStateManager.Instance.SetCurrentState(new InGame(contentManager, graphicsDevice, game));
+            GameStateManager.Instance.SetCurrentState(new InGame(ContentManager, GraphicsDevice, Game));
         }
     }
 }

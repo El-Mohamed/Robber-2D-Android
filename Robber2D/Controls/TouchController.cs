@@ -2,9 +2,14 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Robber_2D
 {
-    internal class Controller
+    class TouchController : IController
     {
-        public bool Up, Down, Left, Right, Space, D;
+        public Output Output { get ; set ; }
+
+        public TouchController(Output output)
+        {
+            Output = output;
+        }
 
         static public bool isPressed()
         {
@@ -23,35 +28,35 @@ namespace Robber_2D
 
             if (touchCollection.Count > 0)
             {
-                Up = false;
-                Down = false;
-                Left = false;
-                Right = false;
-                D = false;
-                Space = false;
+                Output.Up = false;
+                Output.Down = false;
+                Output.Left = false;
+                Output.Right = false;
+                Output.Drink = false;
+                Output.Jump = false;
 
                 foreach (TouchLocation touch in touchCollection)
                 {
 
-                    if (touch.State == TouchLocationState.Moved )
+                    if (touch.State == TouchLocationState.Moved)
                     {
                         if (touch.Position.X < 250)
                         {
-                            Left = true;
+                            Output.Left = true;
                         }
 
                         if (touch.Position.X >= 250 && touch.Position.X < 500)
                         {
-                            Right = true;
+                            Output.Right = true;
                         }
 
 
                         if (touch.Position.X > 900)
                         {
-                            Space = true;
+                            Output.Jump = true;
                         }
                     }
-                }   
+                }
             }
         }
     }

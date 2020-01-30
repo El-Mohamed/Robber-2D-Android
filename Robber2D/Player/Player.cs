@@ -1,24 +1,26 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Robber_2D
 {
     class Player : ICollider, IMover
     {
-        enum PlayerState { ToLeft, ToRight }
-        public Vector2 Speed { get; set; }
         public Rectangle CollisionRectangle { get; set; }
+        public Vector2 Speed;
+        Direction direction;
 
-        public Sprite SpriteSheet;
-        private Animation Animation;
-        private Controller Controller;
+        public Sprite Sprite;
+        Animation Animation;
+        TouchController Controller;
         public Inventory Inventory;
 
-        private PlayerState PlayerDirection;
-        public int Health;
-        public int AirTime;
+        public int Health = 100;
+        int AirTime = 0;
         public bool IsMoving, IsJumping, IsFallingDown;
         public bool CanMoveUp, CanMoveDown, CanMoveLeft, CanMoveRight;
+        public List<Bullet> ShootedBullets;
+        int LastTimeShooted;
 
         public bool IsDead
         {
@@ -35,33 +37,37 @@ namespace Robber_2D
             }
         }
 
-        public Player(Sprite spriteSheet, Controller controller, Animation animation, Rectangle collisionRectangle, Vector2 speed, Inventory inventory)
+        public Player(Sprite sprite, TouchController controller, Animation animation, Rectangle collisionRectangle, Vector2 speed, Inventory inventory)
         {
-            SpriteSheet = spriteSheet;
+            Sprite = sprite;
             Controller = controller;
             Animation = animation;
             CollisionRectangle = collisionRectangle;
             Speed = speed;
             Inventory = inventory;
-            Health = 100;
-            CanMoveLeft = false;
-            CanMoveRight = false;
-            CanMoveDown = false;
-            IsJumping = false;
-            AirTime = 0;
             CreateAnimationFrames();
+            ShootedBullets = new List<Bullet>();
         }
 
         private void CreateAnimationFrames()
         {
             double OffSet = 0;
-            int IndividualSpirteLength = SpriteSheet.Texture1.Width / SpriteSheet.NumberOfSprites;
+            int IndividualSpirteLength = Sprite.Texture.Width / Sprite.NumberOfSprites;
 
-            for (int i = 0; i < SpriteSheet.NumberOfSprites - 1; i++)
+            if (Sprite.NumberOfSprites > 1)
             {
-                OffSet = ((SpriteSheet.Texture1.Width / SpriteSheet.NumberOfSprites) * i);
-                Animation.AddFrame(new Rectangle((int)OffSet, 0, IndividualSpirteLength, SpriteSheet.Texture1.Height));
+                for (int i = 0; i < Sprite.NumberOfSprites - 1; i++)
+                {
+                    OffSet = ((Sprite.Texture.Width / Sprite.NumberOfSprites) * i);
+                    Animation.AddFrame(Factory.CreateRectangle((int)OffSet, 0, IndividualSpirteLength, Sprite.Texture.Height));
+                }
             }
+            else
+            {
+                OffSet = ((Sprite.Texture.Width / Sprite.NumberOfSprites) * 0);
+                Animation.AddFrame(Factory.CreateRectangle((int)OffSet, 0, IndividualSpirteLength, Sprite.Texture.Height));
+            }
+
         }
 
         public void Update(GameTime gameTime)
@@ -70,68 +76,109 @@ namespace Robber_2D
             UpdateAnimation(gameTime);
             UpdateMovement(gameTime);
             UpdateCollisionRectangle();
+            UpdateBullets(gameTime);
+            UpdateTimer(gameTime);
+        }
+
+        private void UpdateTimer(GameTime gameTime)
+        {
+            LastTimeShooted += 100 * gameTime.ElapsedGameTime.Milliseconds / 500;
         }
 
         private void UpdateAnimation(GameTime gameTime)
         {
-            if (!IsMoving && !CanMoveDown)
+            if (Sprite.NumberOfSprites > 1)
             {
-                Animation.currentFrame = Animation.allFrames[0];
-            }
-            else if (IsMoving && !CanMoveDown)
-            {
-                Animation.Update(gameTime);
-            }
-            else
-            {
-                Animation.currentFrame = Animation.allFrames[4];
+                if (!IsMoving && !CanMoveDown)
+                {
+                    Animation.Freeze(0);
+                }
+                else if (IsMoving && !CanMoveDown)
+                {
+                    Animation.Update(gameTime);
+                }
+                else
+                {
+                    Animation.Freeze(4);
+                }
             }
         }
 
         private void UpdateMovement(GameTime gameTime)
         {
-
             HandleJump();
             HandleGravity();
+            UpdateController();
+        }
 
+        private void UpdateController()
+        {
             IsMoving = false;
 
-            if (Controller.Left)
+            if (Controller.Output.Left)
             {
                 MoveLeft();
             }
 
-            if (Controller.Right)
+            if (Controller.Output.Right)
             {
                 MoveRight();
             }
 
-            if (Controller.D)
+            if (Controller.Output.Drink)
             {
                 DrinkPotion();
             }
 
-            if (Controller.Space && IsJumping == false && !CanMoveDown)
+            if (Controller.Output.Jump && IsJumping == false && !CanMoveDown)
             {
                 IsJumping = true;
+            }
+
+            if (Controller.Output.Shoot)
+            {
+                Shoot();
             }
         }
 
         private void UpdateCollisionRectangle()
         {
-            CollisionRectangle = new Rectangle((int)SpriteSheet.Position.X, (int)SpriteSheet.Position.Y, SpriteSheet.Texture1.Width / SpriteSheet.NumberOfSprites, SpriteSheet.Texture1.Height);
+            CollisionRectangle = Factory.CreateRectangle((int)Sprite.Position.X, (int)Sprite.Position.Y, Sprite.Texture.Width / Sprite.NumberOfSprites, Sprite.Texture.Height);
+        }
+
+        public void UpdateHealth(Bullet bullet)
+        {
+            GameSounds.PlayHitSound();
+            Health -= bullet.Damage;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            if (PlayerDirection == PlayerState.ToLeft)
+            if (direction == Direction.ToLeft)
             {
-                spriteBatch.Draw(SpriteSheet.Texture1, SpriteSheet.Position, Animation.currentFrame.SourceRectangle, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.FlipHorizontally, 1);
+                spriteBatch.Draw(Sprite.Texture, Sprite.Position, Animation.CurrentFrame.SourceRectangle, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.FlipHorizontally, 1);
             }
 
-            if (PlayerDirection == PlayerState.ToRight)
+            if (direction == Direction.ToRight)
             {
-                spriteBatch.Draw(SpriteSheet.Texture1, SpriteSheet.Position, Animation.currentFrame.SourceRectangle, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(Sprite.Texture, Sprite.Position, Animation.CurrentFrame.SourceRectangle, Color.White, 0f, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+            }
+            DrawBullets(spriteBatch);
+        }
+
+        private void DrawBullets(SpriteBatch spriteBatch)
+        {
+            foreach (Bullet bullet in ShootedBullets)
+            {
+                bullet.Draw(spriteBatch);
+            }
+        }
+
+        private void UpdateBullets(GameTime gameTime)
+        {
+            foreach (Bullet bullet in ShootedBullets)
+            {
+                bullet.Update(gameTime);
             }
         }
 
@@ -143,15 +190,15 @@ namespace Robber_2D
 
                 if (IsFallingDown && !IsJumping)
                 {
-                    SpriteSheet.Position = new Vector2(SpriteSheet.Position.X + (Speed.X / 2), SpriteSheet.Position.Y);
+                    Sprite.Position.X += (Speed.X / 2);
                 }
                 else
                 {
-                    SpriteSheet.Position = new Vector2(SpriteSheet.Position.X + Speed.X, SpriteSheet.Position.Y);
+                    Sprite.Position.X += Speed.X;
                 }
             }
 
-            PlayerDirection = PlayerState.ToRight;
+            direction = Direction.ToRight;
         }
 
         public void MoveLeft()
@@ -162,15 +209,15 @@ namespace Robber_2D
 
                 if (IsFallingDown && !IsJumping)
                 {
-                    SpriteSheet.Position = new Vector2(SpriteSheet.Position.X - (Speed.X / 2), SpriteSheet.Position.Y);
+                    Sprite.Position.X -= (Speed.X / 2);
                 }
                 else
                 {
-                    SpriteSheet.Position = new Vector2(SpriteSheet.Position.X - Speed.X, SpriteSheet.Position.Y);
+                    Sprite.Position.X -= Speed.X;
                 }
             }
 
-            PlayerDirection = PlayerState.ToLeft;
+            direction = Direction.ToLeft;
         }
 
         public void HandleGravity()
@@ -178,23 +225,22 @@ namespace Robber_2D
             if (!IsJumping && CanMoveDown)
             {
                 IsFallingDown = true;
+
                 if (AirTime < 20)
                 {
                     AirTime++;
 
-                    float MULTIPLIER = 8;
-                    float newSpeedY = Speed.Y;
-                    newSpeedY += 1 * MULTIPLIER;
-                    Speed = new Vector2(Speed.X, newSpeedY);
+                    const float SPEED = 8;
+                    float newSpeedY = Speed.Y + SPEED;
+                    Speed.Y = newSpeedY;
                 }
 
-                SpriteSheet.Position = new Vector2(SpriteSheet.Position.X, SpriteSheet.Position.Y + Speed.Y);
+                Sprite.Position.Y += Speed.Y;
             }
 
             if (!CanMoveDown)
             {
-                Speed = new Vector2(Speed.X, 0);
-                IsJumping = false;
+                Speed.Y = 0;
                 IsFallingDown = false;
                 AirTime = 0;
             }
@@ -202,54 +248,82 @@ namespace Robber_2D
 
         public void HandleJump()
         {
-            Speed = new Vector2(Speed.X, 10);
+            Speed.Y = 10;
+
             if (IsJumping && AirTime < 25)
             {
                 AirTime++;
 
-                if(AirTime == 5)
+                if (AirTime == 5)
                 {
                     GameSounds.PlayJumpSound();
                 }
 
                 if (CanMoveUp)
                 {
-                    SpriteSheet.Position = new Vector2(SpriteSheet.Position.X, SpriteSheet.Position.Y - Speed.Y);
+                    Sprite.Position.Y -= Speed.Y;
                 }
                 else
                 {
-                    Speed = new Vector2(Speed.X, 0);
-                    IsJumping = false;
+                    StopJump();
                 }
             }
             else
             {
-                AirTime = 0;
-                IsJumping = false;
-                Speed = new Vector2(Speed.X, 0);
+                StopJump();
             }
         }
 
-        public void UpdateHealth(Bullet bullet)
+        private void StopJump()
         {
-            GameSounds.PlayHitSound();
-            Health -= bullet.Damage;
+            AirTime = 0;
+            IsJumping = false;
+            Speed.Y = 0;
         }
 
         public void Respawn()
         {
-            SpriteSheet.Position = new Vector2(0, -200);
+            Sprite.Position.X = 0;
+            Sprite.Position.Y = -500;
         }
 
         public void DrinkPotion()
         {
-            if (Inventory.MyPotion != null)
+            if (Inventory.Potion != null)
             {
-                Potion potionToDrink = Inventory.MyPotion;
-                Speed = new Vector2(Speed.X + potionToDrink.SpeedAcceleration, Speed.Y);
-                Inventory.MyPotion = null; // Remove Drinked Potion
-                GameSounds.PlayDrinkSound();
+                Speed.X += Inventory.Potion.SpeedAcceleration;
                 Animation.IncreaseSpeed();
+                Inventory.Potion = null;
+                GameSounds.PlayDrinkSound();
+            }
+        }
+
+        private void Shoot()
+        {
+            if (Sprite.NumberOfSprites == 1 && LastTimeShooted >= 190)
+            {
+                GameSounds.PlayShootSound();
+
+                Texture2D bulletTexture = Factory.CreateTexture("Bullet");
+                const int yOffset = 10;
+                int xOffset;
+
+                if (direction == Direction.ToLeft)
+                {
+                    xOffset = -bulletTexture.Width;
+                }
+                else
+                {
+                    xOffset = Sprite.Texture.Width;
+                }
+
+                Vector2 bulletPosition = Factory.CreateVector(Sprite.Position.X + xOffset, Sprite.Position.Y + yOffset);
+                Rectangle bulletCollisoionRectangle = Factory.CreateRectangle((int)bulletPosition.X, (int)bulletPosition.Y, bulletTexture.Width, bulletTexture.Height);
+                Sprite sprite = Factory.CreateSprite(bulletTexture, 1, bulletPosition);
+                Bullet bullet = WorldFactory.CreateBullet(sprite, bulletCollisoionRectangle);
+                bullet.direction = direction;
+                ShootedBullets.Add(bullet);
+                LastTimeShooted = 0;
             }
         }
     }

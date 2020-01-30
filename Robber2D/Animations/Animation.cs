@@ -5,17 +5,14 @@ namespace Robber_2D
 {
     class Animation
     {
-        public List<AnimationFrame> allFrames;
-        public AnimationFrame currentFrame;
-        private double xOffset;
-        int counter = 0;
-        private int RefreshRate;
+        List<AnimationFrame> allFrames;
+        public AnimationFrame CurrentFrame;
+        double xOffset;
+        int counter = 0, refreshRate = 50;
 
         public Animation()
         {
             allFrames = new List<AnimationFrame>();
-            xOffset = 0;
-            RefreshRate = 50;
         }
 
         public void AddFrame(Rectangle rectangle)
@@ -26,13 +23,14 @@ namespace Robber_2D
             };
 
             allFrames.Add(frame);
-            currentFrame = allFrames[0];
+            CurrentFrame = allFrames[0];
         }
 
         public void Update(GameTime gameTime)
         {
-            xOffset += currentFrame.SourceRectangle.Width * gameTime.ElapsedGameTime.Milliseconds;
-            if (xOffset/ RefreshRate >= currentFrame.SourceRectangle.Width)
+            xOffset += CurrentFrame.SourceRectangle.Width * gameTime.ElapsedGameTime.Milliseconds;
+
+            if (xOffset / refreshRate >= CurrentFrame.SourceRectangle.Width)
             {
                 counter++;
                 if (counter >= allFrames.Count)
@@ -40,15 +38,19 @@ namespace Robber_2D
                     counter = 0;
                 }
 
-                currentFrame = allFrames[counter];
+                CurrentFrame = allFrames[counter];
                 xOffset = 0;
             }
         }
 
         public void IncreaseSpeed()
         {
-            RefreshRate -= 1;
+            refreshRate--;
         }
 
+        public void Freeze(int frameToFreeze)
+        {
+            CurrentFrame = allFrames[frameToFreeze];
+        }
     }
 }

@@ -1,21 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Robber_2D;
 
 namespace Robber_2D
 {
     public abstract class GameState : IGameState
     {
-        public ContentManager contentManager;
-        public GraphicsDevice graphicsDevice;
-        public Game1 game;
+        public ContentManager ContentManager;
+        public GraphicsDevice GraphicsDevice;
+        public Robber2D Game;
 
-        public GameState(ContentManager contentManager, GraphicsDevice graphicsDevice, Game1 game)
+        public GameState(ContentManager contentManager, GraphicsDevice graphicsDevice, Robber2D game)
         {
-            this.graphicsDevice = graphicsDevice;
-            this.contentManager = contentManager;
-            this.game = game;
+            this.GraphicsDevice = graphicsDevice;
+            this.ContentManager = contentManager;
+            this.Game = game;
         }
 
         public abstract void Initialize();
@@ -23,6 +22,5 @@ namespace Robber_2D
         public abstract void UnloadContent();
         public abstract void Update(GameTime gameTime);
         public abstract void Draw(SpriteBatch spriteBatch);
-
     }
 }

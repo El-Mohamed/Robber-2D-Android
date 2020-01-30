@@ -2,22 +2,23 @@ namespace Robber_2D
 {
     class CollisionManager
     {
-        public void CheckCollision(Player player, Level currentLevel)
+        public void CheckCollision(Player player, World currentLevel)
         {
             CheckPickablesCollision(player, currentLevel);
             CheckDoorCollision(player, currentLevel);
             CheckPlatformCollision(player, currentLevel);
             CheckMapRange(player, currentLevel);
-            if (currentLevel is HardLevel)
+            if (currentLevel is SpecialWorld)
             {
-                HardLevel hardLevel = currentLevel as HardLevel;
-                CheckBulletsCollison(player, hardLevel);
+                SpecialWorld specialWorld = currentLevel as SpecialWorld;
+                CheckEnemiesBulletsCollision(player, specialWorld);
+                CheckPlayerBulletsCollison(player, specialWorld);
             }
         }
 
-        private void CheckBulletsCollison(Player player, HardLevel hardLevel)
+        private void CheckEnemiesBulletsCollision(Player player, SpecialWorld specialWorld)
         {
-            foreach (Tank tank in hardLevel.AllTanks)
+            foreach (Tank tank in specialWorld.AllTanks)
             {
                 for (int i = 0; i < tank.ShootedBullets.Count; i++)
                 {
@@ -30,7 +31,32 @@ namespace Robber_2D
             }
         }
 
-        private void CheckPickablesCollision(Player player, Level currentLevel)
+        private void CheckPlayerBulletsCollison(Player player, SpecialWorld specialWorld)
+        {
+            for (int i = 0; i < player.ShootedBullets.Count; i++)
+            {
+                Bullet bullet = player.ShootedBullets[i];
+
+                for (int j = 0; j < specialWorld.AllTanks.Count; j++)
+                {
+                    Tank tank = specialWorld.AllTanks[j];
+
+                    if (bullet.CollisionRectangle.Intersects(tank.CollisionRectangle))
+                    {
+                        tank.UpdateHealth(bullet);
+                        player.ShootedBullets.RemoveAt(i);
+
+                        if (tank.IsDestroyed)
+                        {
+                            GameSounds.PlayExplosionSound();
+                            specialWorld.AllTanks.RemoveAt(j);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CheckPickablesCollision(Player player, World currentLevel)
         {
             for (int i = 0; i < currentLevel.AllPickables.Count; i++)
             {
@@ -43,7 +69,7 @@ namespace Robber_2D
                         {
                             player.Inventory.AddItem(currentLevel.AllPickables[i]);
                             currentLevel.AllPickables.RemoveAt(i);
-                            player.Inventory.MyKey = null;
+                            player.Inventory.Key = null;
                             currentLevel.totalMoneySafes--;
                         }
                     }
@@ -56,7 +82,7 @@ namespace Robber_2D
             }
         }
 
-        private void CheckDoorCollision(Player player, Level currentLevel)
+        private void CheckDoorCollision(Player player, World currentLevel)
         {
             foreach (Block obstacle in currentLevel.AllObstacles)
             {
@@ -64,14 +90,14 @@ namespace Robber_2D
                 {
                     Door door = obstacle as Door;
                     if (player.CollisionRectangle.Intersects(door.CollisionRectangle))
-                    {                       
-                        if(currentLevel.NextLevel == InGame.GAMEISDONECODE)
+                    {
+                        if (currentLevel.NextWorld == InGame.GAMEISDONECODE)
                         {
-                            InGame.PlayerWon = true;                        
-                        }   
+                            InGame.PlayerWon = true;
+                        }
                         else
                         {
-                            InGame.CurrentLevel = currentLevel.NextLevel;
+                            InGame.CurrentWorld = currentLevel.NextWorld;
                             player.Respawn();
                         }
                     }
@@ -79,7 +105,7 @@ namespace Robber_2D
             }
         }
 
-        private void CheckPlatformCollision(Player player, Level level)
+        private void CheckPlatformCollision(Player player, World level)
         {
             bool canMoveDown = true;
             bool canMoveLeft = true;
@@ -120,11 +146,11 @@ namespace Robber_2D
 
         }
 
-        private void CheckMapRange(Player player, Level currentlevel)
+        private void CheckMapRange(Player player, World currentlevel)
         {
-            if (player.CollisionRectangle.Top > 1600)
+            if (player.CollisionRectangle.Top > currentlevel.MapRange)
             {
-                player.Respawn();
+                player.Health = 0;
             }
         }
     }
