@@ -9,11 +9,8 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/ElMoufid-Mohamed/Robber-2D-Android)
 
 ## Preview
-<br/>
-
 ![Preview](https://raw.githubusercontent.com/ElMoufid-Mohamed/Robber-2D-Android/master/Robber2D/Logo/Google%20Pixel.png)
 
 ## Install Game
-
 <a href="https://play.google.com/store/apps/details?id=com.mohamed.robber2D" alt="Google Play">   
 <img src="https://raw.githubusercontent.com/ElMoufid-Mohamed/Robber-2D-Android/master/Robber2D/Logo/Google%20Play%20Store%20Badge.png" width="323" height="125"/></a>
